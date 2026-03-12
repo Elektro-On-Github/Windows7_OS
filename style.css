@@ -1,0 +1,35 @@
+.bottombar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 48px;
+    background: rgba(0, 174, 255, 0); /* semi trasparente */
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
+    border-top: solid 0.5px #b6b6b6;
+}
+
+.wallpaper {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.start-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+}
