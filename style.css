@@ -1,5 +1,8 @@
 .bottombar {
     position: fixed;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     bottom: 0;
     left: 0;
     width: 100%;
@@ -32,4 +35,16 @@ body {
     height: 48px;
     border-radius: 50px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+}
+
+.app-btn {
+    width: 48px;
+    height: 48px;
+}
+
+.separator {
+    height: 42px;
+    width: 1px;
+    background: rgba(0, 0, 0, 0.5);
+    border: solid 0px;
 }
