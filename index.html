@@ -9,16 +9,27 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <img src="w7.jpg" class="wallpaper">
+
+<div class="deskicon">
+    <div class="icon" data-target="window1">
+        <img src="ie.png">
+        <span>Internet Explorer</span>
+    </div>
+    <div class="icon">
+        <img src="start.png">
+        <span>Start menu</span>
+    </div>
+</div>
+
 <div class="window" id="window1">
     <div class="window-title">
-        <span>Finestra 1</span>
+        <span>C:\Windows\System32\whoami.exe</span>
         <div class="window-buttons">
-            <button class="btn-minimize">_</button>
             <button class="btn-maximize">□</button>
-            <button class="btn-close">X</button>
+            <button class="btn-close">x</button>
         </div>
     </div>
-    <div class="window-content">Contenuto</div>
+    <div class="window-content">elektrowindows</div>
 </div>
 
 <div class="bottombar">
@@ -28,23 +39,62 @@
 </div>
 
 <script>
-    const windows = document.querySelectorAll('.window')
+    const windows = document.querySelectorAll('.window');
 
-    windows.forEach(win => {
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('icons:', document.querySelectorAll('.icon'),length, 'windows:', document.querySelectorAll('.window').length)
+
+        document.querySelectorAll('.icon').forEach(icon => {
+            icon.addEventListener('dblclick', () => {
+                const targetId = (icon.dataset.target || 'window1').trim();
+                console.log('dbclick target:', JSON.stringify(targetId));
+                const winEl = document.getElementById(targetId);
+                console.log('fnd element:', winEl);
+                if (!winEl) {
+                    console.error('finestra non trovata', targetId);
+                    return;
+                }
+                winEl.style.display = 'block';
+                winEl.style.zIndex = 1000;
+            });
+        });
+    });
+
+    windows.forEach((win, index) => {
         const titleBar = win.querySelector('.window-title');
-        const btnMinimize = win.querySelector('.btn-minimize');
         const btnMaximize = win.querySelector('.btn-maximize');
         const btnClose = win.querySelector('.btn-close');
+
+        //id univoko 4 window
+        //const windowId = `window-${index}`;
+        //win.id = windowId;
 
         let isMoving = false;
         let offsetX = 0, offsetY = 0;
         let isMaximized = false;
         let previousState = {}
+        let taskbarIcon = null;
+
+        function createTaskbarIcon() {
+            if (taskbarIcon) return; // se esiste non duplicare
+            taskbarIcon = document.createElement('img');
+            taskbarIcon.src = 'ie.png'; // 4 every win set an icon
+            taskbarIcon.className = 'taskbar-app-btn';
+            taskbarIcon.title = titleBar.querySelector('span').textContent;
+
+            taskbarIcon.addEventListener('click', () => {
+                win.style.display = 'block';
+                win.style.zIndex = 100;
+                taskbarIcon.remove();
+                taskbarIcon = null;
+            });
+
+            taskbar.appenChild(taskbarIcon);
+        }
 
         //dragga
         titleBar.addEventListener('mousedown', (e) => {
             if (e.target.classList.contains('.window-buttons') ||
-                e.target.classList.contains('.btn-minimize') ||
                 e.target.classList.contains('btn-maximize') ||
                 e.target.classList.contains('.btn-close')) {
                     return;
@@ -64,11 +114,6 @@
 
         document.addEventListener('mouseup', () => {
             isMoving = false;
-        });
-
-        //minimize
-        btnMinimize.addEventListener('click', () => {
-            win.style.display = 'none';
         });
 
         //mxmz and restore
@@ -96,6 +141,10 @@
 
         //close
         btnClose.addEventListener('click', () => {
+            if (taskbarIcon) {
+                taskbarIcon.remove();
+                taskbarIcon = null;
+            }
             win.remove();
         });
     });
