@@ -12,7 +12,7 @@
     -webkit-backdrop-filter: blur(4px);
     box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
     border-top: solid 0.5px #6d6d6d;
-    z-index: 10000;
+    z-index: 1000000;
 }
 
 .wallpaper {
@@ -48,59 +48,6 @@ body {
     width: 1px;
     background: rgba(0, 0, 0, 0.5);
     border: solid 0px;
-}
-
-
-.window {
-    position: fixed;
-    width: 800px;
-    height: 600px;
-    background: rgba(255, 255, 255, 0.5);
-    border: 1px solid #999;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    left: 100px;
-    top: 100px;
-    z-index: 100;
-    backdrop-filter: blur(10px);
-    border-radius: 6px;
-}
-
-.window-title {
-    height: 24px;
-    background: #0078d4a2;
-    color: white;
-    padding: 10px;
-    cursor: move;
-    display: flex;
-    align-items: center;
-    user-select: none;
-    justify-content: space-between;
-}
-
-.window-content {
-    padding: 15px;
-    height: calc(100% - 48px);
-    overflow: auto;
-}
-
-.window-buttons {
-    display: flex;
-    gap: 5px;
-}
-
-.window-buttons button {
-    width: 32px;
-    height: 32px;
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background 0.2s;
-}
-
-.window-buttons button:hover {
-    background: #005a9e;
 }
 
 .deskicon {

@@ -7,201 +7,148 @@
     <meta name="author" content="ElektroWindows">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="7.css">
 </head>
 <img src="w7.jpg" class="wallpaper">
 
+
 <div class="deskicon">
-    <div class="icon" data-target="window1">
-        <img src="ie.png">
-        <span>Internet Explorer</span>
-    </div>
-    <div class="icon">
-        <img src="start.png">
-        <span>Start menu</span>
-    </div>
+  <div class="icon" id="icon-ie">
+    <img src="ie.png">
+    <span>Internet Explorer</span>
+  </div>
+  <div class="icon" id="icon-start">
+    <img src="start.png">
+    <span>Start menu</span>
+  </div>
 </div>
 
-<div class="window" id="window1">
-    <div class="window-title">
-        <span>C:\Windows\System32\whoami.exe</span>
-        <div class="window-buttons">
-            <button class="btn-maximize">□</button>
-            <button class="btn-close">x</button>
+
+
+<!-- Le finestre dinamiche verranno aggiunte qui -->
+<div id="windows-container"></div>
+
+<script>
+// Drag & drop per finestre stile Windows 7
+function makeDraggable(win) {
+  let isDragging = false, offsetX = 0, offsetY = 0;
+  const handle = win.querySelector('.drag-handle');
+  handle.style.cursor = 'move';
+  handle.addEventListener('mousedown', function(e) {
+    isDragging = true;
+    const rect = win.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    win.style.zIndex = 10001;
+    document.body.style.userSelect = 'none';
+  });
+  document.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    win.style.left = (e.clientX - offsetX) + 'px';
+    win.style.top = (e.clientY - offsetY) + 'px';
+  });
+  document.addEventListener('mouseup', function() {
+    isDragging = false;
+    document.body.style.userSelect = '';
+    win.style.zIndex = '';
+  });
+}
+
+function createWindow({id, title, content, icon}) {
+  // Se già esiste, porta in primo piano
+  let existing = document.getElementById(id);
+  if (existing) {
+    existing.style.display = '';
+    existing.style.zIndex = 10001;
+    return;
+  }
+  const win = document.createElement('div');
+  win.className = 'window draggable';
+  win.id = id;
+  win.style.position = 'absolute';
+  win.style.left = Math.floor(Math.random()*200+100) + 'px';
+  win.style.top = Math.floor(Math.random()*100+80) + 'px';
+  win.style.maxWidth = '400px';
+  win.innerHTML = `
+  <div class="background">
+    <div class="window glass active" style="max-width: 100%; --w7-w-bg: #805ba5;">
+        <div class="title-bar drag-handle" style="background-attachment: local;">
+            <div class="title-bar-text">${icon ? `<img src='${icon}' style='height:16px;vertical-align:middle;margin-right:6px;'>` : ''}${title}</div>
+                <div class="title-bar-controls">
+                    <button class="btn-min" aria-label="Minimize"></button>
+                    <button class="btn-max" aria-label="Maximize"></button>
+                    <button class="btn-close" aria-label="Close"></button>
+                </div>
         </div>
+        <div class="window-body has-space">${content}</div>
     </div>
-    <div class="window-content">elektrowindows</div>
-</div>
+    </div>
+  `;
+  document.getElementById('windows-container').appendChild(win);
+  makeDraggable(win);
+  // Chiudi
+  win.querySelector('.btn-close').onclick = () => win.remove();
+  // Maximize/Restore
+  let isMax = false, prev = {};
+  win.querySelector('.btn-max').onclick = function() {
+    if (!isMax) {
+      prev = {left: win.style.left, top: win.style.top, width: win.style.width, height: win.style.height, maxWidth: win.style.maxWidth};
+      win.style.left = '0px';
+      win.style.top = '0px';
+      win.style.width = '100vw';
+      win.style.height = '100vh';
+      win.style.maxWidth = 'none';
+      win.style.zIndex = 10001;
+      isMax = true;
+    } else {
+      win.style.left = prev.left;
+      win.style.top = prev.top;
+      win.style.width = prev.width;
+      win.style.height = prev.height;
+      win.style.maxWidth = prev.maxWidth;
+      isMax = false;
+    }
+  };
+  // Minimize
+  win.querySelector('.btn-min').onclick = function() {
+    win.style.display = 'none';
+  };
+}
+
+// Funzione per Internet Explorer
+function openIEWindow() {
+  createWindow({
+    id: 'window-ie',
+    title: 'Internet Explorer',
+    icon: 'ie.png',
+    content: `<iframe src='https://www.bing.com' style='width:100%;height:300px;border:0;'></iframe>`
+  });
+}
+
+// Funzione per Start Menu
+function openStartMenuWindow() {
+  createWindow({
+    id: 'window-start',
+    title: 'Start Menu',
+    icon: 'start.png',
+    content: `<ul style='list-style:none;padding:0;margin:0;'>
+      <li><b>Programmi</b></li>
+      <li>Accessori</li>
+      <li>Impostazioni</li>
+      <li>Documenti</li>
+      <li>Arresta il sistema</li>
+    </ul>`
+  });
+}
+
+// Collega le icone
+document.getElementById('icon-ie').onclick = openIEWindow;
+document.getElementById('icon-start').onclick = openStartMenuWindow;
+</script>
 
 <div class="bottombar">
     <img src="start.png" class="start-btn">
     <div class="separator"></div>
     <img src="ie.png" class="app-btn">
 </div>
-
-<script>
-    function initWindow(win) {
-        const titleBar = win.querySelector('.window-title');
-        const btnMax = win.querySelector('.btn-maximize');
-        const btnClose = win.querySelector('.btn-close');
-
-        let isMoving = false, offX = 0, offY = 0, maximized = false, prev={};
-
-        titleBar.addEventListener('mousedown', e => {
-            if (e.target.closest('.window-buttons')) return;
-            isMoving = true;
-            offX = e.clientX - win.offsetLeft;
-            offY = e.clientY - win.offsetTop;
-            win.style.zIndex = 1000;
-            document.onmousemove = ev => {
-                if (isMoving && !maximized) {
-                    win.style.left = (ev.clientX - offX) + 'px';
-                    win.style.top = (ev.clientY - offY) + 'px';
-                }
-            };
-            document.onmouseup = () => { isMoving = false; document.onmousemove = null; document.onmouseup = null;};
-        });
-
-        btnMax?.addEventListener('click', () => {
-            if (!maximized) {
-                prev = { left: win.style.left || win.offsetLeft + 'px', top: win.style.top || win.offsetTop + 'px', width: win.style.width, height: win.style.height };
-                Object.assign(win.style, { left: '0', top: '0', width: '100%', height: '100%'});
-                maximized = true;
-            } else {
-                Object.assign(win.style, { left: prev.left, top: prev.top, with: prev.width, height: prev.height })
-                maximized = false;
-            }
-        });
-
-        btnClose?.addEventListener('click', () => win.remove());
-    }
-
-    function createWindow(id, title = 'Nuova finestra', content = '') {
-        const win = document.createElement('div');
-        win.className = 'window';
-        win.id = id;
-        win.style.left = '120px';
-        win.style.top = '120px';
-        win.innerHTML = `
-            <div class="window-title">
-                <span>${title}</span>
-                <div class="window-buttons">
-                    <button class="btn-maximize">□</button>
-                    <button class="btn-close">X</button>
-                </div>
-            </div>
-            <div class="window-content">${content}</div>
-        `;
-        document.body.appendChild(win);
-        initWindow(win);
-        return win;
-    }
-
-    const windows = document.querySelectorAll('.window');
-
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log('icons:', document.querySelectorAll('.icon'),length, 'windows:', document.querySelectorAll('.window').length)
-
-        document.querySelectorAll('.icon').forEach(icon => {
-            icon.addEventListener('dblclick', () => {
-                const targetId = (icon.dataset.target || `window-${Date.now()}`).trim();
-                let winEl = document.getElementById(targetId);
-                if (!winEl) {
-                    const title = icon.querySelector('span')?.textContent || targetId;
-                    winEl = createWindow(targetId, title, 'Contenuto di ' + title);
-                }
-                winEl.style.display = 'block';
-                winEl.style.zIndex = 1000;
-            });
-        });
-    });
-
-    windows.forEach((win, index) => {
-        const titleBar = win.querySelector('.window-title');
-        const btnMaximize = win.querySelector('.btn-maximize');
-        const btnClose = win.querySelector('.btn-close');
-
-        //id univoko 4 window
-        //const windowId = `window-${index}`;
-        //win.id = windowId;
-
-        let isMoving = false;
-        let offsetX = 0, offsetY = 0;
-        let isMaximized = false;
-        let previousState = {}
-        let taskbarIcon = null;
-
-        function createTaskbarIcon() {
-            if (taskbarIcon) return; // se esiste non duplicare
-            taskbarIcon = document.createElement('img');
-            taskbarIcon.src = 'ie.png'; // 4 every win set an icon
-            taskbarIcon.className = 'taskbar-app-btn';
-            taskbarIcon.title = titleBar.querySelector('span').textContent;
-
-            taskbarIcon.addEventListener('click', () => {
-                win.style.display = 'block';
-                win.style.zIndex = 100;
-                taskbarIcon.remove();
-                taskbarIcon = null;
-            });
-
-            taskbar.appenChild(taskbarIcon);
-        }
-
-        //dragga
-        titleBar.addEventListener('mousedown', (e) => {
-            if (e.target.classList.contains('.window-buttons') ||
-                e.target.classList.contains('btn-maximize') ||
-                e.target.classList.contains('.btn-close')) {
-                    return;
-                }
-                isMoving = true;
-                offsetX = e.clientX - win.offsetLeft;
-                offsetY = e.clientY - win.offsetTop;
-                win.style.zIndex = 100;
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (isMoving && !isMaximized) {
-                win.style.left = (e.clientX - offsetX) + 'px';
-                win.style.top = (e.clientY - offsetY) + 'px';
-            }
-        });
-
-        document.addEventListener('mouseup', () => {
-            isMoving = false;
-        });
-
-        //mxmz and restore
-        btnMaximize.addEventListener('click', () => {
-            if (!isMaximized) {
-                previousState = {
-                    left: win.style.left,
-                    top: win.style.top,
-                    width: win.style.width,
-                    height: win.style.height
-                };
-                win.style.left = '0';
-                win.style.top = '0';
-                win.style.width = '100%'
-                win.style.height = '100%';
-                isMaximized = true;
-            } else {
-                win.style.left = previousState.left;
-                win.style.top = previousState.top;
-                win.style.width = previousState.width;
-                win.style.height = previousState.height;
-                isMaximized = false;
-            }
-        });
-
-        //close
-        btnClose.addEventListener('click', () => {
-            if (taskbarIcon) {
-                taskbarIcon.remove();
-                taskbarIcon = null;
-            }
-            win.remove();
-        });
-    });
-</script>
 </html>
