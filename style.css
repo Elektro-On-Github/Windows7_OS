@@ -15,6 +15,13 @@
     z-index: 1000000;
 }
 
+.window.glass.active {
+  backdrop-filter: blur(8px);
+  background-color: rgba(3, 85, 173, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
 .wallpaper {
     top: 0;
     left: 0;

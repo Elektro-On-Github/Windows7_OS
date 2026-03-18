@@ -9,24 +9,32 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="7.css">
 </head>
-<img src="w7.jpg" class="wallpaper">
+<body>
 
+<!-- div.background wrappa TUTTO per il blur effect -->
+<div class="background">
+    <img src="w7.jpg" class="wallpaper">
 
-<div class="deskicon">
-  <div class="icon" id="icon-ie">
-    <img src="ie.png">
-    <span>Internet Explorer</span>
-  </div>
-  <div class="icon" id="icon-start">
-    <img src="start.png">
-    <span>Start menu</span>
-  </div>
+    <div class="deskicon">
+        <div class="icon" id="icon-ie">
+            <img src="ie.png">
+            <span>Internet Explorer</span>
+        </div>
+        <div class="icon" id="icon-start">
+            <img src="start.png">
+            <span>Start menu</span>
+        </div>
+    </div>
+
+    <!-- Le finestre dinamiche verranno aggiunte qui -->
+    <div id="windows-container"></div>
+
+    <div class="bottombar">
+        <img src="start.png" class="start-btn">
+        <div class="separator"></div>
+        <img src="ie.png" class="app-btn">
+    </div>
 </div>
-
-
-
-<!-- Le finestre dinamiche verranno aggiunte qui -->
-<div id="windows-container"></div>
 
 <script>
 // Drag & drop per finestre stile Windows 7
@@ -63,26 +71,22 @@ function createWindow({id, title, content, icon}) {
     return;
   }
   const win = document.createElement('div');
-  win.className = 'window draggable';
+  win.className = 'window glass active draggable';
   win.id = id;
   win.style.position = 'absolute';
   win.style.left = Math.floor(Math.random()*200+100) + 'px';
   win.style.top = Math.floor(Math.random()*100+80) + 'px';
   win.style.maxWidth = '400px';
   win.innerHTML = `
-  <div class="background">
-    <div class="window glass active" style="max-width: 100%; --w7-w-bg: #805ba5;">
-        <div class="title-bar drag-handle" style="background-attachment: local;">
-            <div class="title-bar-text">${icon ? `<img src='${icon}' style='height:16px;vertical-align:middle;margin-right:6px;'>` : ''}${title}</div>
-                <div class="title-bar-controls">
-                    <button class="btn-min" aria-label="Minimize"></button>
-                    <button class="btn-max" aria-label="Maximize"></button>
-                    <button class="btn-close" aria-label="Close"></button>
-                </div>
+    <div class="title-bar drag-handle">
+        <div class="title-bar-text">${icon ? `<img src='${icon}' style='height:16px;vertical-align:middle;margin-right:6px;'>` : ''}${title}</div>
+        <div class="title-bar-controls">
+            <button class="btn-min" aria-label="Minimize"></button>
+            <button class="btn-max" aria-label="Maximize"></button>
+            <button class="btn-close" aria-label="Close"></button>
         </div>
-        <div class="window-body has-space">${content}</div>
     </div>
-    </div>
+    <div class="window-body has-space">${content}</div>
   `;
   document.getElementById('windows-container').appendChild(win);
   makeDraggable(win);
@@ -121,7 +125,7 @@ function openIEWindow() {
     id: 'window-ie',
     title: 'Internet Explorer',
     icon: 'ie.png',
-    content: `<iframe src='https://www.bing.com' style='width:100%;height:300px;border:0;'></iframe>`
+    content: `<iframe src='https://www.example.com' style='width:100%;height:300px;border:0;'></iframe>`
   });
 }
 
@@ -146,9 +150,5 @@ document.getElementById('icon-ie').onclick = openIEWindow;
 document.getElementById('icon-start').onclick = openStartMenuWindow;
 </script>
 
-<div class="bottombar">
-    <img src="start.png" class="start-btn">
-    <div class="separator"></div>
-    <img src="ie.png" class="app-btn">
-</div>
+</body>
 </html>
