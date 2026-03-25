@@ -33,6 +33,7 @@
         <img src="start.png" class="start-btn">
         <div class="separator"></div>
         <img src="ie.png" class="app-btn">
+        <div class="taskbar-clock"style="margin-left: auto; padding-right: 10px; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;"></div>
     </div>
 </div>
 
@@ -148,6 +149,21 @@ function openStartMenuWindow() {
 // Collega le icone
 document.getElementById('icon-ie').onclick = openIEWindow;
 document.getElementById('icon-start').onclick = openStartMenuWindow;
+</script>
+
+//clock script
+<script>
+function updateClock() {
+  const el = document.getElementById('taskbar-clock');
+  if (!el) return;
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2, '0');
+  const m = String(now.getMinutes()).padStart(2, '0');
+  el.textContent = `${h}:${m}`;
+}
+
+updateClock();
+setInterval(updateClock, 1000);
 </script>
 
 </body>
