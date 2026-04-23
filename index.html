@@ -8,14 +8,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="7.css">
+    <style>
+        .background {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .deskicon .icon img {
+            filter: drop-shadow(2px 2px 1px rgba(0,0,0,0.5));
+        }
+        
+        .deskicon .icon:hover img {
+            filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.8)) brightness(1.1);
+        }
+        
+        .deskicon .icon:active img {
+            filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.5)) brightness(0.95);
+        }
+        
+        .app-btn {
+            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3)) !important;
+            transition: all 0.2s;
+        }
+        
+        .app-btn:hover {
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5)) brightness(1.1) !important;
+            transform: scale(1.05);
+        }
+        
+        .app-btn:active {
+            filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.3)) brightness(0.95) !important;
+            transform: scale(0.95);
+        }
+    </style>
 </head>
 <body>
 
 <!-- div.background wrappa TUTTO per il blur effect -->
 <div class="background">
     <img src="w7.jpg" class="wallpaper">
-
+    <div class="glass-overlay"></div>
     <div class="deskicon">
+        <div class="icon" id="icon-computer">
+            <img src="computer.png">
+            <span>My Computer</span>
+        </div>
         <div class="icon" id="icon-ie">
             <img src="ie.png">
             <span>Internet Explorer</span>
@@ -32,7 +70,8 @@
     <div class="bottombar">
         <img src="start.png" class="start-btn">
         <div class="separator"></div>
-        <img src="ie.png" class="app-btn">
+        <img src="computer.png" class="app-btn" id="taskbar-computer" title="My Computer">
+        <img src="ie.png" class="app-btn" id="taskbar-ie" title="Internet Explorer">
         <div class="taskbar-clock"style="margin-left: auto; padding-right: 10px; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;"></div>
     </div>
 </div>
@@ -169,28 +208,228 @@ function openIEWindow() {
   });
 }
 
-// Funzione per Start Menu
+// Struttura file system fittizia
+const fileSystem = {
+  'C:\\': {
+    type: 'drive',
+    items: {
+      'Documents': {
+        type: 'folder',
+        items: {
+          'Resume.docx': { type: 'file', icon: '📄' },
+          'Progetti': {
+            type: 'folder',
+            items: {
+              'WebOS': { type: 'file', icon: '📁' },
+              'App.exe': { type: 'file', icon: '⚙️' }
+            }
+          }
+        }
+      },
+      'Pictures': {
+        type: 'folder',
+        items: {
+          'Vacation.jpg': { type: 'file', icon: '🖼️' },
+          'Family.jpg': { type: 'file', icon: '🖼️' }
+        }
+      },
+      'Downloads': {
+        type: 'folder',
+        items: {
+          'Setup.exe': { type: 'file', icon: '⚙️' },
+          'Driver.zip': { type: 'file', icon: '📦' }
+        }
+      },
+      'Music': {
+        type: 'folder',
+        items: {
+          'Song1.mp3': { type: 'file', icon: '🎵' },
+          'Song2.mp3': { type: 'file', icon: '🎵' }
+        }
+      }
+    }
+  }
+};
+
+let currentPath = ['C:\\'];
+
+function renderFileExplorer() {
+  let current = fileSystem;
+  for (let part of currentPath) {
+    current = current[part].items;
+  }
+  
+  let breadcrumb = `<div style="background:#f0f0f0;padding:8px;border-bottom:1px solid #ccc;font-size:12px;font-family:Segoe UI,monospace;">
+    <span style="color:#0066cc;cursor:pointer;margin-right:5px;" onclick="window.navigateHome()">🏠 Home</span> &gt; ${currentPath.join(' &gt; ')}
+  </div>`;
+  
+  let content = '<div style="padding:10px;">';
+  
+  if (currentPath.length > 1) {
+    content += `
+      <div style="display:flex;gap:15px;margin-bottom:15px;">
+        <button onclick="window.navigateBack()" style="padding:5px 10px;cursor:pointer;background:#e0e0e0;border:1px solid #999;">← Back</button>
+      </div>
+    `;
+  }
+  
+  content += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:15px;">';
+  
+  for (let [name, item] of Object.entries(current)) {
+    if (item.type === 'folder') {
+      content += `
+        <div style="text-align:center;cursor:pointer;user-select:none;" ondblclick="window.openFolder('${name}')">
+          <div style="font-size:36px;margin-bottom:5px;">📁</div>
+          <div style="font-size:11px;word-wrap:break-word;max-width:80px;">${name}</div>
+        </div>
+      `;
+    } else {
+      content += `
+        <div style="text-align:center;cursor:pointer;user-select:none;">
+          <div style="font-size:36px;margin-bottom:5px;">${item.icon}</div>
+          <div style="font-size:11px;word-wrap:break-word;max-width:80px;">${name}</div>
+        </div>
+      `;
+    }
+  }
+  
+  content += '</div></div>';
+  return breadcrumb + content;
+}
+
+window.openFolder = function(folderName) {
+  let current = fileSystem;
+  for (let part of currentPath) {
+    current = current[part].items;
+  }
+  if (current[folderName] && current[folderName].type === 'folder') {
+    currentPath.push(folderName);
+    let win = document.getElementById('window-mycomputer');
+    if (win) {
+      let body = win.querySelector('.window-body');
+      body.innerHTML = renderFileExplorer();
+    }
+  }
+};
+
+window.navigateBack = function() {
+  if (currentPath.length > 1) {
+    currentPath.pop();
+    let win = document.getElementById('window-mycomputer');
+    if (win) {
+      let body = win.querySelector('.window-body');
+      body.innerHTML = renderFileExplorer();
+    }
+  }
+};
+
+window.navigateHome = function() {
+  currentPath = ['C:\\'];
+  let win = document.getElementById('window-mycomputer');
+  if (win) {
+    let body = win.querySelector('.window-body');
+    body.innerHTML = renderFileExplorer();
+  }
+};
+
+function openMyComputerWindow() {
+  currentPath = ['C:\\'];
+  createWindow({
+    id: 'window-mycomputer',
+    title: 'My Computer',
+    icon: 'computer.png',
+    content: renderFileExplorer()
+  });
+}
+
 function openStartMenuWindow() {
   createWindow({
     id: 'window-start',
     title: 'Start Menu',
     icon: 'start.png',
-    content: `<ul style='list-style:none;padding:0;margin:0;'>
-      <li><b>Programmi</b></li>
-      <li>Accessori</li>
-      <li>Impostazioni</li>
-      <li>Documenti</li>
-      <li>Arresta il sistema</li>
-    </ul>`
+    content: `
+      <div style="padding:10px;">
+        <button class="start-menu-btn" data-action="computer" style="width:100%;padding:12px;margin:5px 0;background:#e8e8e8;border:1px solid #999;cursor:pointer;text-align:left;font-size:13px;font-weight:bold;">📁 My Computer</button>
+        <button class="start-menu-btn" data-action="ie" style="width:100%;padding:12px;margin:5px 0;background:#e8e8e8;border:1px solid #999;cursor:pointer;text-align:left;font-size:13px;font-weight:bold;">🌐 Internet Explorer</button>
+        <hr style="margin:10px 0;border:none;border-top:1px solid #999;">
+        <div style="font-size:11px;color:#666;">
+          <p><b>Programmi</b></p>
+          <p><b>Accessori</b></p>
+          <p><b>Impostazioni</b></p>
+          <p><b>Documenti</b></p>
+        </div>
+        <button class="start-menu-btn" data-action="shutdown" style="width:100%;padding:10px;margin-top:10px;background:#c00;color:white;border:none;cursor:pointer;font-weight:bold;">🔴 Arresta il sistema</button>
+        <button class="start-menu-btn" data-action="music">🎵 Music Player</button>
+      </div>
+    `
   });
+
+  // Aggiungi event listeners ai bottoni
+  setTimeout(() => {
+    document.querySelectorAll('.start-menu-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (btn.dataset.action === 'computer') {
+          openMyComputerWindow();
+        } else if (btn.dataset.action === 'ie') {
+          openIEWindow();
+        } else if (btn.dataset.action === 'shutdown') {
+          alert('Sistema in arresto...');
+        } else if (btn.dataset.action === 'music') {
+          openMusicPlayer();
+        }
+      });
+    });
+  }, 0);
 }
 
-// Collega le icone
+// Collega icone desktop
+document.getElementById('icon-computer').onclick = openMyComputerWindow;
 document.getElementById('icon-ie').onclick = openIEWindow;
 document.getElementById('icon-start').onclick = openStartMenuWindow;
+
+// Collega taskbar
+document.getElementById('taskbar-computer').onclick = openMyComputerWindow;
+document.getElementById('taskbar-ie').onclick = openIEWindow;
+document.querySelector('.start-btn').onclick = openStartMenuWindow;
+
+function openMusicPlayer() {
+  createWindow({
+    id: 'window-music',
+    title: 'Music Player',
+    icon: '🎵',
+    content: `
+      <div style="padding:10px; display:flex; flex-direction:column; gap:10px;">
+        
+        <input type="file" accept="audio/*" id="audioFile">
+
+        <audio id="audioPlayer" controls style="width:100%;"></audio>
+
+        <div style="display:flex; gap:10px;">
+          <button onclick="document.getElementById('audioPlayer').play()">▶ Play</button>
+          <button onclick="document.getElementById('audioPlayer').pause()">⏸ Pause</button>
+        </div>
+
+      </div>
+    `
+  });
+
+  setTimeout(() => {
+    const fileInput = document.getElementById('audioFile');
+    const player = document.getElementById('audioPlayer');
+
+    fileInput.addEventListener('change', function() {
+      const file = this.files[0];
+      if (file) {
+        player.src = URL.createObjectURL(file);
+        player.play();
+      }
+    });
+  }, 0);
+}
 </script>
 
-//clock script
+<!-- Clock script -->
 <script>
 function updateClock() {
   const el = document.getElementById('taskbar-clock');
