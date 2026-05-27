@@ -1,27 +1,28 @@
-# ElektroOS - Windows 7 Web OS
+# ElektroOS — Windows 7 Web UI
+This is a HTML replica of Windows 7. This is only a demo, i will release future update in future.
+I writed it using 7.css, a css framework with windows 7 elements (like button, blur, window frame etc...)
 
-## Technical Specifications
 
-- **Language**: Vanilla JavaScript (no frameworks)
-- **CSS**: Pure CSS3 with animations and transitions
-- **Browser Support**: Modern Chrome, Firefox, Edge
-- **Responsive**: Adapts to different screen resolutions
-- **Performance**: Optimized using CSS transitions and animations
+## Featurez
 
-## Aero Colors
+- Aero-inspired system, window, and basically everything
+- layout for different screen sizes (yeah)
+- Integrates the `7.css` windows 7 theme by khang-nd
 
-- **Taskbar**: Gradient #c8d3e0 → #7da8d1
-- **Window Title**: #4580c4 (base Aero blue)
-- **Glass Effect**: 4px blur + transparency
-- **Glow Color**: #5dc4f0 (bright light blue)
+## how to use it
 
-## Technical Stack
+1. open 'index.html' in your browser.
+2. 4 a local server (recommended for full CSS feature support), run:
 
-- **HTML5**: Semantic structure
-- **CSS3**: Animations, gradients, filters, backdrop-filter
-- **JavaScript ES6+**: Event handling, DOM manipulation
-- **7.css**: Windows 7 CSS framework by khang-nd
+```bash
+python3 -m http.server 8000
+# open http://localhost:8000 in your browser
+```
 
----
+- This code has been tested on modern Chrome, Firefox and Edge (it should work on safari too)
 
--- This project was created using a bit of AI 
+## Creditz
+
+- `7.css` by khang-nd
+- original design inspired by Windows 7
+- Ai has been used 4 this project
